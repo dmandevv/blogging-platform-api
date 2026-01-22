@@ -3,7 +3,7 @@ package blog
 import "time"
 
 type BlogPost struct {
-	ID        int       `bson:"id,omitempty"`
+	ID        int       `bson:"_id,omitempty"`
 	Title     string    `bson:"title" json:"title"`
 	Content   string    `bson:"content" json:"content"`
 	Category  string    `bson:"category" json:"category"`

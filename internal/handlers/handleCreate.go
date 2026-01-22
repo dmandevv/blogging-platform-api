@@ -39,18 +39,18 @@ func HandleCreate(cfg *config.Config, w http.ResponseWriter, r *http.Request) {
 		newPost.CreatedAt = time.Now()
 		newPost.UpdatedAt = time.Now()
 
-		collection := cfg.MongoClient.Database(cfg.MongoDB).Collection(cfg.MongoDBBlogCollection)
-		ctx, cancel := context.WithTimeout(context.Background(), cfg.MongoInsertTimeout)
-		defer cancel()
+		collection := cfg.MongoClient.Database(cfg.MongoDB).Collection(cfg.MongoCollection)
+		ctx, _ := context.WithTimeout(context.TODO(), cfg.MongoInsertTimeout)
 		_, err := collection.InsertOne(ctx, newPost)
 		if err != nil {
-			http.Error(w, "Failed to insert blog post into MongoDB", http.StatusInternalServerError)
+			http.Error(w, "Failed to insert blog post into MongoDB: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
 		w.WriteHeader(http.StatusCreated)
 		w.Write([]byte("Blog created and saved to database: " + newPost.Title))
+	} else {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("Blog created: " + newPost.Title))
 	}
 
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Blog created: " + newPost.Title))
 }

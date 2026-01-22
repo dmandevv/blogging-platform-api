@@ -2,28 +2,35 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"net/http"
+	"net/url"
+	"time"
 
 	"github.com/dmandevv/blogging-platform-api/internal/config"
 	"github.com/dmandevv/blogging-platform-api/internal/handlers"
 
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
+	"go.mongodb.org/mongo-driver/v2/mongo/readpref"
 )
 
 func main() {
 
-	mongoClient, _ := mongo.Connect(options.Client().ApplyURI("mongodb://localhost:8080"))
+	cfg := &config.Config{
+		MongoClient:        connectMongoDB(),
+		MongoDB:            "blog-cluster",
+		MongoCollection:    "posts",
+		MongoInsertTimeout: time.Second * 5,
+		Host:               "localhost",
+		Port:               8080,
+	}
 	defer func() {
-		err := mongoClient.Disconnect(context.Background())
+		err := cfg.MongoClient.Disconnect(context.TODO())
 		if err != nil {
 			panic(err)
 		}
 	}()
-
-	cfg := &config.Config{
-		MongoClient: mongoClient,
-	}
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -33,5 +40,29 @@ func main() {
 		handlers.HandleCreate(cfg, w, r)
 	})
 
-	http.ListenAndServe(":8080", mux)
+	http.ListenAndServe(fmt.Sprintf("%s:%d", cfg.Host, cfg.Port), mux)
+
+}
+
+func connectMongoDB() *mongo.Client {
+
+	url, err := url.Parse("mongodb+srv://blogAdmin:zu@gbPDUYBXi3Kr@blog-cluster.ycanw9t.mongodb.net/?appName=blog-cluster")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Connecting to MongoDB at:", url.String())
+	serverAPI := options.ServerAPI(options.ServerAPIVersion1)
+	opts := options.Client().ApplyURI(url.String()).SetServerAPIOptions(serverAPI)
+
+	client, err := mongo.Connect(opts)
+	if err != nil {
+		panic(err)
+	}
+
+	//ping server
+	if err = client.Ping(context.TODO(), readpref.Primary()); err != nil {
+		panic(err)
+	}
+	fmt.Println("Connected to MongoDB")
+	return client
 }
