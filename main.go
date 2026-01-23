@@ -39,6 +39,9 @@ func main() {
 	mux.HandleFunc("POST /posts", func(w http.ResponseWriter, r *http.Request) {
 		handlers.HandleCreate(cfg, w, r)
 	})
+	mux.HandleFunc("/posts/{_id}", func(w http.ResponseWriter, r *http.Request) {
+		handlers.HandleUpdate(cfg, w, r)
+	})
 
 	http.ListenAndServe(fmt.Sprintf("%s:%d", cfg.Host, cfg.Port), mux)
 

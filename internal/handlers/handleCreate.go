@@ -9,6 +9,7 @@ import (
 
 	"github.com/dmandevv/blogging-platform-api/internal/blog"
 	"github.com/dmandevv/blogging-platform-api/internal/config"
+	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
 func HandleCreate(cfg *config.Config, w http.ResponseWriter, r *http.Request) {
@@ -41,16 +42,29 @@ func HandleCreate(cfg *config.Config, w http.ResponseWriter, r *http.Request) {
 
 		collection := cfg.MongoClient.Database(cfg.MongoDB).Collection(cfg.MongoCollection)
 		ctx, _ := context.WithTimeout(context.TODO(), cfg.MongoInsertTimeout)
-		_, err := collection.InsertOne(ctx, newPost)
+		insertResult, err := collection.InsertOne(ctx, newPost)
 		if err != nil {
 			http.Error(w, "Failed to insert blog post into MongoDB: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
-		w.WriteHeader(http.StatusCreated)
-		w.Write([]byte("Blog created and saved to database: " + newPost.Title))
-	} else {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("Blog created: " + newPost.Title))
-	}
 
+		if oid, ok := insertResult.InsertedID.(bson.ObjectID); ok {
+			newPost.ID = oid
+		} else {
+			http.Error(w, "Failed to convert inserted ID to ObjectID", http.StatusInternalServerError)
+			return
+		}
+
+		prettyPost, err := json.MarshalIndent(newPost, "", " ")
+		if err != nil {
+			http.Error(w, "Blog created and saved to database, but failed to marshal response", http.StatusCreated)
+			return
+		}
+
+		w.WriteHeader(http.StatusCreated)
+		w.Write([]byte(prettyPost))
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Blog created BUT not saved to database: " + newPost.Title))
 }

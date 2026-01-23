@@ -17,7 +17,7 @@ var tests = []struct {
 	{
 		request:          `{"title": "My First Blog Post", "content": "This is the content of my first blog post.", "category": "Technology", "tags": ["Tech", "Programming"]}`,
 		httpStatus:       http.StatusOK,
-		expectedResponse: "Blog created: My First Blog Post",
+		expectedResponse: "Blog created BUT not saved to database: My First Blog Post",
 	},
 	{
 		request:          `{"title": "", "content": "This is the content of my first blog post.", "category": "Technology", "tags": ["Tech", "Programming"]}`,
