@@ -33,14 +33,31 @@ func main() {
 	}()
 
 	mux := http.NewServeMux()
+
+	//get
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("BLOG"))
+		handlers.HandleGetAll(cfg, w, r)
 	})
+	mux.HandleFunc("GET /posts", func(w http.ResponseWriter, r *http.Request) {
+		handlers.HandleGetAll(cfg, w, r)
+	})
+	mux.HandleFunc("GET /posts/{_id}", func(w http.ResponseWriter, r *http.Request) {
+		handlers.HandleGet(cfg, w, r)
+	})
+
+	//create
 	mux.HandleFunc("POST /posts", func(w http.ResponseWriter, r *http.Request) {
 		handlers.HandleCreate(cfg, w, r)
 	})
-	mux.HandleFunc("/posts/{_id}", func(w http.ResponseWriter, r *http.Request) {
+
+	//update
+	mux.HandleFunc("PUT /posts/{_id}", func(w http.ResponseWriter, r *http.Request) {
 		handlers.HandleUpdate(cfg, w, r)
+	})
+
+	//delete
+	mux.HandleFunc("DELETE /posts/{_id}", func(w http.ResponseWriter, r *http.Request) {
+		handlers.HandleDelete(cfg, w, r)
 	})
 
 	http.ListenAndServe(fmt.Sprintf("%s:%d", cfg.Host, cfg.Port), mux)
