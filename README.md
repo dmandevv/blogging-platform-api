@@ -2,7 +2,7 @@
 
 A RESTful API for a personal blogging platform built with Go and MongoDB. This API provides full CRUD functionality for managing blog posts with support for categorization and tagging.
 
-This project is an exercise from the roadmap.sh project: [link](https://roadmap.sh/projects/blogging-platform-api)
+This project is an exercise from the roadmap.sh project: [blogging-platform-api](https://roadmap.sh/projects/blogging-platform-api)
 
 ## Features
 
