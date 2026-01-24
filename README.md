@@ -2,17 +2,7 @@
 
 A RESTful API for a personal blogging platform built with Go and MongoDB. This API provides full CRUD functionality for managing blog posts with support for categorization and tagging.
 
-This project is an exercise from the roadmap.sh project: [blogging-platform-api](https://roadmap.sh/projects/blogging-platform-api)
-
-## Features
-
-- **Create** blog posts with title, content, category, and tags
-- **Read** all blog posts or retrieve individual posts by ID
-- **Search** blog posts by title, content, or category
-- **Update** existing blog posts while preserving creation timestamps
-- **Delete** blog posts
-- MongoDB integration for persistent storage
-- JSON request/response format
+This project is an exercise from the roadmap.sh project: [blogging-platform-api](https://roadmap.sh/projects/blogging-platform-api) 📚
 
 ## Getting Started
 
@@ -72,7 +62,7 @@ curl http://localhost:8080/posts
 
 **Example - Search for posts:**
 ```bash
-curl "http://localhost:8080/posts?term=golang"
+curl "http://localhost:8080/posts?term=Programming"
 ```
 
 **Response (200 OK):**
